@@ -3,8 +3,8 @@
  * Cabang: Kebayoran - Jakarta (T.A. 2026/2027)
  */
 const CONFIG = {
-  // Base API URL: Kosongkan untuk menggunakan relative path Cloudflare Pages Functions (/api/...)
-  API_BASE_URL: '',
+  // URL Backend API Cloudflare D1
+  API_BASE_URL: 'https://pilihan-tka.lasroha-panjaitan1.workers.dev',
 
   // Identitas Cabang & Sekolah
   APP_TITLE: 'Pemilihan Mata Pelajaran TKA',
