@@ -1,10 +1,12 @@
 /**
  * Konfigurasi Web Pemilihan Mata Pelajaran TKA
- * Cabang: Kebayoran - Jakarta (T.A. 2026/2027)
+ * Unit: Prosus INTEN Cabang Kebayoran - Jakarta (T.A. 2026/2027)
  */
 const CONFIG = {
-  // URL Backend API Cloudflare D1
-  API_BASE_URL: 'https://pilihan-tka.lasroha-panjaitan1.workers.dev',
+  // Otomatis mendeteksi domain: Jika dibuka di Cloudflare gunakan relative path, jika dibuka di GitHub Pages gunakan URL Worker
+  API_BASE_URL: (typeof window !== 'undefined' && (window.location.hostname.includes('workers.dev') || window.location.hostname.includes('pages.dev')))
+    ? ''
+    : 'https://pilihan-tka.lasroha-panjaitan1.workers.dev',
 
   // Identitas Cabang & Sekolah
   APP_TITLE: 'Pemilihan Mata Pelajaran TKA',

@@ -20,11 +20,12 @@ const VALID_SUBJECTS = [
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
-    const pathname = url.pathname;
+    const pathname = url.pathname.replace(/\/+$/, '') || '/';
 
-    // Handle CORS preflight
+    // Handle CORS preflight for all endpoints
     if (request.method === 'OPTIONS') {
       return new Response(null, {
+        status: 204,
         headers: corsHeaders()
       });
     }
@@ -52,12 +53,21 @@ export default {
       return handleResetChoice(request, env);
     }
 
-    // Serve static assets
+    // Fallback status check
+    if (pathname === '/api/health') {
+      return jsonResponse({
+        status: 'OK',
+        database_connected: Boolean(env.DB),
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    // Serve static assets (HTML, CSS, JS)
     if (env.ASSETS) {
       return env.ASSETS.fetch(request);
     }
 
-    return new Response('Not Found', { status: 404 });
+    return new Response('Not Found', { status: 404, headers: corsHeaders() });
   }
 };
 
@@ -91,7 +101,7 @@ async function handleLogin(request, env) {
           }
         });
       }
-      return jsonResponse({ success: false, message: 'Password Admin salah.' }, 401);
+      return jsonResponse({ success: false, message: 'Password Admin Utama salah.' }, 401);
     }
 
     // 2. Wali Kelas (*.jakarta / WalasPTN@2027)
@@ -117,7 +127,10 @@ async function handleLogin(request, env) {
 
     // 3. Siswa (D1 Database)
     if (!env.DB) {
-      return jsonResponse({ success: false, message: 'Database D1 belum terhubung ke aplikasi.' }, 500);
+      return jsonResponse({
+        success: false,
+        message: 'Database D1 belum terhubung. Pastikan Binding bernama "DB" sudah dibuat di Cloudflare Settings.'
+      }, 500);
     }
 
     const student = await env.DB.prepare(
@@ -125,11 +138,11 @@ async function handleLogin(request, env) {
     ).bind(username).first();
 
     if (!student) {
-      return jsonResponse({ success: false, message: 'Username / NIS tidak terdaftar.' }, 404);
+      return jsonResponse({ success: false, message: 'Username / NIS tidak terdaftar di sistem.' }, 404);
     }
 
     if (student.password !== password) {
-      return jsonResponse({ success: false, message: 'Password siswa salah.' }, 401);
+      return jsonResponse({ success: false, message: 'Password yang Anda masukkan salah.' }, 401);
     }
 
     return jsonResponse({
@@ -167,11 +180,11 @@ async function handleSubmitChoice(request, env) {
     const choice2 = String(body.choice_2 || '').trim();
 
     if (!username || !choice1 || !choice2) {
-      return jsonResponse({ success: false, message: 'Data tidak lengkap.' }, 400);
+      return jsonResponse({ success: false, message: 'Harap tentukan Pilihan 1 dan Pilihan 2.' }, 400);
     }
 
     if (!VALID_SUBJECTS.includes(choice1) || !VALID_SUBJECTS.includes(choice2)) {
-      return jsonResponse({ success: false, message: 'Mata pelajaran tidak valid.' }, 400);
+      return jsonResponse({ success: false, message: 'Salah satu mata pelajaran tidak valid.' }, 400);
     }
 
     if (!env.DB) {
