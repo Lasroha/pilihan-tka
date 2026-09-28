@@ -1,13 +1,14 @@
 /**
- * Frontend Logic - Web Pemilihan Mata Pelajaran TKA
+ * Frontend Logic - Web Pemilihan Mata Pelajaran TKA (Cloudflare D1 Stack)
+ * Unit: Prosus INTEN Cabang Kebayoran - Jakarta (T.A. 2026/2027)
  */
 
 // Application State
 const state = {
   currentUser: null,
+  walasData: null,
   adminData: null,
-  adminAuth: null,
-  scriptUrl: localStorage.getItem('GAS_SCRIPT_URL') || CONFIG.SCRIPT_URL || '',
+  authCredentials: null,
   activeView: 'view-login'
 };
 
@@ -19,13 +20,12 @@ const elements = {
   navUserActions: document.getElementById('nav-user-actions'),
   navUserDisplay: document.getElementById('nav-user-display'),
   btnLogout: document.getElementById('btn-logout'),
-  setupWarning: document.getElementById('setup-warning'),
-  linkOpenConfigModal: document.getElementById('link-open-config-modal'),
 
   // Views
   viewLogin: document.getElementById('view-login'),
-  viewDashboard: document.getElementById('view-dashboard'),
+  viewStudent: document.getElementById('view-student'),
   viewProof: document.getElementById('view-proof'),
+  viewWalas: document.getElementById('view-walas'),
   viewAdmin: document.getElementById('view-admin'),
 
   // Login Form
@@ -36,11 +36,14 @@ const elements = {
   btnTogglePass: document.getElementById('btn-toggle-pass'),
   loginError: document.getElementById('login-error'),
 
-  // Student Dashboard / Selection Form
+  // Student Dashboard
   studentAvatarLetter: document.getElementById('student-avatar-letter'),
   studentDisplayName: document.getElementById('student-display-name'),
   studentDisplayNis: document.getElementById('student-display-nis'),
   studentDisplayKelas: document.getElementById('student-display-kelas'),
+  studentDisplaySekolah: document.getElementById('student-display-sekolah'),
+  studentDisplayWalas: document.getElementById('student-display-walas'),
+  studentTargetJurusan: document.getElementById('student-target-jurusan'),
   studentStatusBadge: document.getElementById('student-status-badge'),
   studentLastUpdate: document.getElementById('student-last-update'),
   formSelection: document.getElementById('form-selection'),
@@ -58,39 +61,51 @@ const elements = {
   btnViewProof: document.getElementById('btn-view-proof'),
 
   // Proof Card
-  proofSchoolName: document.getElementById('proof-school-name'),
   proofDocId: document.getElementById('proof-doc-id'),
   proofNis: document.getElementById('proof-nis'),
   proofName: document.getElementById('proof-name'),
+  proofSekolah: document.getElementById('proof-sekolah'),
   proofKelas: document.getElementById('proof-kelas'),
+  proofWalas: document.getElementById('proof-walas'),
+  proofTargetJurusan: document.getElementById('proof-target-jurusan'),
   proofTimestamp: document.getElementById('proof-timestamp'),
-  proofStatus: document.getElementById('proof-status'),
   proofVal1: document.getElementById('proof-val-1'),
   proofVal2: document.getElementById('proof-val-2'),
   proofSignatureName: document.getElementById('proof-signature-name'),
   btnBackToEdit: document.getElementById('btn-back-to-edit'),
   btnPrintProof: document.getElementById('btn-print-proof'),
 
-  // Admin Dashboard Elements
+  // Walas Dashboard
+  walasHeaderInisial: document.getElementById('walas-header-inisial'),
+  btnWalasRefresh: document.getElementById('btn-walas-refresh'),
+  btnWalasExport: document.getElementById('btn-walas-export'),
+  btnWalasPrint: document.getElementById('btn-walas-print'),
+  walasStatTotal: document.getElementById('walas-stat-total'),
+  walasStatCompleted: document.getElementById('walas-stat-completed'),
+  walasStatPending: document.getElementById('walas-stat-pending'),
+  walasStatPercent: document.getElementById('walas-stat-percent'),
+  walasSearchInput: document.getElementById('walas-search-input'),
+  walasFilterStatus: document.getElementById('walas-filter-status'),
+  walasFilterKelas: document.getElementById('walas-filter-kelas'),
+  walasShowingCount: document.getElementById('walas-showing-count'),
+  walasStudentTbody: document.getElementById('walas-student-tbody'),
+
+  // Admin Dashboard
   btnAdminRefresh: document.getElementById('btn-admin-refresh'),
   btnAdminExport: document.getElementById('btn-admin-export'),
   btnAdminPrint: document.getElementById('btn-admin-print'),
-  statTotalStudents: document.getElementById('stat-total-students'),
-  statCompletedStudents: document.getElementById('stat-completed-students'),
-  statPendingStudents: document.getElementById('stat-pending-students'),
-  statPercentProgress: document.getElementById('stat-percent-progress'),
+  adminStatTotal: document.getElementById('admin-stat-total'),
+  adminStatCompleted: document.getElementById('admin-stat-completed'),
+  adminStatPending: document.getElementById('admin-stat-pending'),
+  adminStatPercent: document.getElementById('admin-stat-percent'),
   adminSubjectStatsContainer: document.getElementById('admin-subject-stats-container'),
+  adminWalasProgressContainer: document.getElementById('admin-walas-progress-container'),
   adminSearchInput: document.getElementById('admin-search-input'),
   adminFilterStatus: document.getElementById('admin-filter-status'),
+  adminFilterWalas: document.getElementById('admin-filter-walas'),
   adminFilterKelas: document.getElementById('admin-filter-kelas'),
   adminShowingCount: document.getElementById('admin-showing-count'),
   adminStudentTbody: document.getElementById('admin-student-tbody'),
-
-  // Modal Config
-  configModal: document.getElementById('config-modal'),
-  inputCustomScriptUrl: document.getElementById('input-custom-script-url'),
-  btnSaveConfig: document.getElementById('btn-save-config'),
-  btnCancelConfig: document.getElementById('btn-cancel-config'),
 
   // Toast Container
   toastContainer: document.getElementById('toast-container')
@@ -103,24 +118,12 @@ document.addEventListener('DOMContentLoaded', () => {
   initAppMeta();
   populateSubjectDropdowns();
   setupEventListeners();
-  checkScriptUrlConfig();
   restoreSession();
 });
 
 function initAppMeta() {
   if (CONFIG.APP_TITLE) elements.navAppTitle.textContent = CONFIG.APP_TITLE;
-  if (CONFIG.INSTITUTION_NAME) {
-    elements.navInstName.textContent = CONFIG.INSTITUTION_NAME;
-    elements.proofSchoolName.textContent = CONFIG.INSTITUTION_NAME;
-  }
-}
-
-function checkScriptUrlConfig() {
-  if (!state.scriptUrl) {
-    elements.setupWarning.style.display = 'block';
-  } else {
-    elements.setupWarning.style.display = 'none';
-  }
+  if (CONFIG.INSTITUTION_NAME) elements.navInstName.textContent = CONFIG.INSTITUTION_NAME;
 }
 
 function populateSubjectDropdowns() {
@@ -136,40 +139,60 @@ function populateSubjectDropdowns() {
 // EVENT LISTENERS
 // ==========================================
 function setupEventListeners() {
-  // Toggle Password Visibility
+  // Password Visibility Toggle
   elements.btnTogglePass.addEventListener('click', () => {
     const isPassword = elements.loginPassword.type === 'password';
     elements.loginPassword.type = isPassword ? 'text' : 'password';
     elements.btnTogglePass.textContent = isPassword ? '🙈' : '👁️';
   });
 
-  // Login Submit
+  // Login Form
   elements.formLogin.addEventListener('submit', handleLoginSubmit);
 
-  // Dropdown Change Previews
+  // Subject Selection Previews
   elements.selectPilihan1.addEventListener('change', () => updateChoicePreview(1));
   elements.selectPilihan2.addEventListener('change', () => updateChoicePreview(2));
 
-  // Submit Choices
+  // Submit Student Choices
   elements.formSelection.addEventListener('submit', handleSelectionSubmit);
 
-  // Proof View & Print Actions
+  // Proof View & Print
   elements.btnViewProof.addEventListener('click', () => {
     populateProofCard();
     switchView('view-proof');
   });
 
   elements.btnBackToEdit.addEventListener('click', () => {
-    switchView('view-dashboard');
+    switchView('view-student');
   });
 
   elements.btnPrintProof.addEventListener('click', () => {
     window.print();
   });
 
-  // Admin Actions
+  // Walas Dashboard Actions
+  if (elements.btnWalasRefresh) {
+    elements.btnWalasRefresh.addEventListener('click', () => fetchWalasData(true));
+  }
+  if (elements.btnWalasExport) {
+    elements.btnWalasExport.addEventListener('click', exportWalasCSV);
+  }
+  if (elements.btnWalasPrint) {
+    elements.btnWalasPrint.addEventListener('click', () => window.print());
+  }
+  if (elements.walasSearchInput) {
+    elements.walasSearchInput.addEventListener('input', renderWalasTable);
+  }
+  if (elements.walasFilterStatus) {
+    elements.walasFilterStatus.addEventListener('change', renderWalasTable);
+  }
+  if (elements.walasFilterKelas) {
+    elements.walasFilterKelas.addEventListener('change', renderWalasTable);
+  }
+
+  // Admin Dashboard Actions
   if (elements.btnAdminRefresh) {
-    elements.btnAdminRefresh.addEventListener('click', () => fetchAdminRecap(true));
+    elements.btnAdminRefresh.addEventListener('click', () => fetchAdminData(true));
   }
   if (elements.btnAdminExport) {
     elements.btnAdminExport.addEventListener('click', exportAdminCSV);
@@ -177,13 +200,14 @@ function setupEventListeners() {
   if (elements.btnAdminPrint) {
     elements.btnAdminPrint.addEventListener('click', () => window.print());
   }
-
-  // Admin Filters
   if (elements.adminSearchInput) {
     elements.adminSearchInput.addEventListener('input', renderAdminTable);
   }
   if (elements.adminFilterStatus) {
     elements.adminFilterStatus.addEventListener('change', renderAdminTable);
+  }
+  if (elements.adminFilterWalas) {
+    elements.adminFilterWalas.addEventListener('change', renderAdminTable);
   }
   if (elements.adminFilterKelas) {
     elements.adminFilterKelas.addEventListener('change', renderAdminTable);
@@ -191,38 +215,17 @@ function setupEventListeners() {
 
   // Logout
   elements.btnLogout.addEventListener('click', handleLogout);
-
-  // Config Modal
-  elements.linkOpenConfigModal.addEventListener('click', (e) => {
-    e.preventDefault();
-    elements.inputCustomScriptUrl.value = state.scriptUrl;
-    elements.configModal.classList.add('active');
-  });
-
-  elements.btnCancelConfig.addEventListener('click', () => {
-    elements.configModal.classList.remove('active');
-  });
-
-  elements.btnSaveConfig.addEventListener('click', () => {
-    const url = elements.inputCustomScriptUrl.value.trim();
-    if (url) {
-      state.scriptUrl = url;
-      localStorage.setItem('GAS_SCRIPT_URL', url);
-      elements.configModal.classList.remove('active');
-      checkScriptUrlConfig();
-      showToast('URL Web App Google Apps Script berhasil disimpan!', 'success');
-    }
-  });
 }
 
 // ==========================================
-// VIEW SWITCHER & HELPERS
+// VIEW SWITCHER
 // ==========================================
 function switchView(viewId) {
   state.activeView = viewId;
   elements.viewLogin.classList.remove('active');
-  elements.viewDashboard.classList.remove('active');
+  elements.viewStudent.classList.remove('active');
   elements.viewProof.classList.remove('active');
+  if (elements.viewWalas) elements.viewWalas.classList.remove('active');
   if (elements.viewAdmin) elements.viewAdmin.classList.remove('active');
 
   const targetView = document.getElementById(viewId);
@@ -254,28 +257,24 @@ function updateChoicePreview(choiceNumber) {
 }
 
 // ==========================================
-// API CALL HELPER (GAS CORS-FRIENDLY)
+// API CLIENT (CLOUDFLARE PAGES FUNCTIONS)
 // ==========================================
-async function callGasApi(payload) {
-  const url = state.scriptUrl;
-  if (!url) {
-    throw new Error('URL Google Apps Script belum dikonfigurasi. Silakan atur URL Web App terlebih dahulu.');
-  }
+async function callApi(endpoint, payload) {
+  const baseUrl = CONFIG.API_BASE_URL || '';
+  const url = `${baseUrl}/api/${endpoint}`;
 
-  // Menggunakan 'text/plain;charset=utf-8' untuk menghindari CORS preflight OPTIONS request pada GAS
   const response = await fetch(url, {
     method: 'POST',
     headers: {
-      'Content-Type': 'text/plain;charset=utf-8'
+      'Content-Type': 'application/json'
     },
     body: JSON.stringify(payload)
   });
 
-  if (!response.ok) {
-    throw new Error(`HTTP Error: ${response.status} ${response.statusText}`);
+  const data = await response.json().catch(() => ({ success: false, message: 'Invalid response from server.' }));
+  if (!response.ok && !data.message) {
+    data.message = `HTTP Error ${response.status}`;
   }
-
-  const data = await response.json();
   return data;
 }
 
@@ -297,34 +296,37 @@ async function handleLoginSubmit(e) {
   setButtonLoading(elements.btnLoginSubmit, true);
 
   try {
-    const res = await callGasApi({
-      action: 'login',
-      username: username,
-      password: password
-    });
+    const res = await callApi('login', { username, password });
 
     if (res.success) {
-      if (res.role === 'admin') {
-        state.currentUser = res.data;
-        state.adminAuth = { username: username, password: password };
-        sessionStorage.setItem('TKA_SESSION_USER', JSON.stringify(res.data));
-        sessionStorage.setItem('TKA_SESSION_ADMIN_AUTH', JSON.stringify(state.adminAuth));
-        
-        elements.navUserDisplay.textContent = `👑 Administrator`;
-        elements.navUserActions.style.display = 'flex';
+      state.currentUser = res.data;
+      state.authCredentials = { username, password };
+      sessionStorage.setItem('TKA_SESSION_USER', JSON.stringify(res.data));
+      sessionStorage.setItem('TKA_SESSION_AUTH', JSON.stringify(state.authCredentials));
 
-        showToast('Login Administrator Berhasil!', 'success');
+      if (res.role === 'admin') {
+        elements.navUserDisplay.textContent = `👑 Admin Utama`;
+        elements.navUserActions.style.display = 'flex';
+        showToast('Selamat datang di Dasbor Admin Utama!', 'success');
         switchView('view-admin');
-        fetchAdminRecap();
+        fetchAdminData();
+      } else if (res.role === 'walas') {
+        elements.navUserDisplay.textContent = `👨‍🏫 Walas (${res.data.inisial_user})`;
+        elements.navUserActions.style.display = 'flex';
+        elements.walasHeaderInisial.textContent = res.data.inisial_user;
+        showToast(`Selamat datang, Wali Kelas ${res.data.inisial_user}!`, 'success');
+        switchView('view-walas');
+        fetchWalasData();
       } else {
-        state.currentUser = res.data;
-        sessionStorage.setItem('TKA_SESSION_USER', JSON.stringify(res.data));
-        showToast('Selamat datang, ' + res.data.nama_lengkap, 'success');
-        loadUserDataToUI(res.data);
-        switchView('view-dashboard');
+        // Siswa
+        elements.navUserDisplay.textContent = `${res.data.first_name} (${res.data.nama_kelas})`;
+        elements.navUserActions.style.display = 'flex';
+        showToast(`Selamat datang, ${res.data.first_name}!`, 'success');
+        loadStudentDataToUI(res.data);
+        switchView('view-student');
       }
     } else {
-      showLoginError(res.message || 'Login gagal. Periksa kembali NIS dan Password Anda.');
+      showLoginError(res.message || 'Login gagal. Periksa kembali username dan password Anda.');
     }
   } catch (err) {
     showLoginError(err.message || 'Gagal terhubung ke server backend.');
@@ -339,62 +341,69 @@ function showLoginError(msg) {
 }
 
 function restoreSession() {
-  const saved = sessionStorage.getItem('TKA_SESSION_USER');
-  const savedAdminAuth = sessionStorage.getItem('TKA_SESSION_ADMIN_AUTH');
+  const savedUser = sessionStorage.getItem('TKA_SESSION_USER');
+  const savedAuth = sessionStorage.getItem('TKA_SESSION_AUTH');
 
-  if (saved) {
+  if (savedUser && savedAuth) {
     try {
-      const user = JSON.parse(saved);
+      const user = JSON.parse(savedUser);
+      const auth = JSON.parse(savedAuth);
       state.currentUser = user;
+      state.authCredentials = auth;
 
       if (user.role === 'admin') {
-        if (savedAdminAuth) state.adminAuth = JSON.parse(savedAdminAuth);
-        elements.navUserDisplay.textContent = `👑 Administrator`;
+        elements.navUserDisplay.textContent = `👑 Admin Utama`;
         elements.navUserActions.style.display = 'flex';
         switchView('view-admin');
-        fetchAdminRecap();
+        fetchAdminData();
+      } else if (user.role === 'walas') {
+        elements.navUserDisplay.textContent = `👨‍🏫 Walas (${user.inisial_user})`;
+        elements.navUserActions.style.display = 'flex';
+        elements.walasHeaderInisial.textContent = user.inisial_user;
+        switchView('view-walas');
+        fetchWalasData();
       } else {
-        loadUserDataToUI(user);
-        switchView('view-dashboard');
+        elements.navUserDisplay.textContent = `${user.first_name} (${user.nama_kelas})`;
+        elements.navUserActions.style.display = 'flex';
+        loadStudentDataToUI(user);
+        switchView('view-student');
       }
     } catch (e) {
       sessionStorage.removeItem('TKA_SESSION_USER');
+      sessionStorage.removeItem('TKA_SESSION_AUTH');
     }
   }
 }
 
 function handleLogout() {
   state.currentUser = null;
+  state.walasData = null;
   state.adminData = null;
-  state.adminAuth = null;
-  sessionStorage.removeItem('TKA_SESSION_USER');
-  sessionStorage.removeItem('TKA_SESSION_ADMIN_AUTH');
+  state.authCredentials = null;
+  sessionStorage.clear();
+
   elements.formLogin.reset();
   elements.formSelection.reset();
   elements.previewPilihan1.style.display = 'none';
   elements.previewPilihan2.style.display = 'none';
   elements.navUserActions.style.display = 'none';
   switchView('view-login');
-  showToast('Anda telah keluar.', 'success');
+  showToast('Anda telah berhasil keluar.', 'success');
 }
 
 // ==========================================
-// DASHBOARD & SELECTION LOGIC
+// STUDENT VIEW LOGIC
 // ==========================================
-function loadUserDataToUI(user) {
-  // Nav bar user badge
-  elements.navUserDisplay.textContent = `${user.nama_lengkap} (${user.kelas})`;
-  elements.navUserActions.style.display = 'flex';
+function loadStudentDataToUI(student) {
+  elements.studentAvatarLetter.textContent = student.first_name ? student.first_name.charAt(0).toUpperCase() : 'S';
+  elements.studentDisplayName.textContent = student.first_name;
+  elements.studentDisplayNis.textContent = student.username;
+  elements.studentDisplayKelas.textContent = student.nama_kelas || '-';
+  elements.studentDisplaySekolah.textContent = student.sekolah || '-';
+  elements.studentDisplayWalas.textContent = student.inisial_user || '-';
+  elements.studentTargetJurusan.textContent = student.target_jurusan || 'Belum Ditentukan';
 
-  // Dashboard Student Profile Card
-  elements.studentAvatarLetter.textContent = user.nama_lengkap ? user.nama_lengkap.charAt(0).toUpperCase() : 'S';
-  elements.studentDisplayName.textContent = user.nama_lengkap;
-  elements.studentDisplayNis.textContent = user.username;
-  elements.studentDisplayKelas.textContent = user.kelas;
-
-  // Status Badge
-  const hasSelected = user.pilihan_1 && user.pilihan_2;
-  if (hasSelected) {
+  if (student.is_submitted && student.choice_1 && student.choice_2) {
     elements.studentStatusBadge.className = 'badge badge-success';
     elements.studentStatusBadge.textContent = '✅ SUDAH MEMILIH';
     elements.btnViewProof.style.display = 'inline-flex';
@@ -404,19 +413,18 @@ function loadUserDataToUI(user) {
     elements.btnViewProof.style.display = 'none';
   }
 
-  if (user.updated_at) {
-    elements.studentLastUpdate.textContent = `Terakhir disimpan: ${user.updated_at}`;
+  if (student.updated_at || student.submitted_at) {
+    elements.studentLastUpdate.textContent = `Tersimpan: ${student.updated_at || student.submitted_at}`;
   } else {
     elements.studentLastUpdate.textContent = '';
   }
 
-  // Pre-fill selection dropdowns if exists
-  if (user.pilihan_1) {
-    elements.selectPilihan1.value = user.pilihan_1;
+  if (student.choice_1) {
+    elements.selectPilihan1.value = student.choice_1;
     updateChoicePreview(1);
   }
-  if (user.pilihan_2) {
-    elements.selectPilihan2.value = user.pilihan_2;
+  if (student.choice_2) {
+    elements.selectPilihan2.value = student.choice_2;
     updateChoicePreview(2);
   }
 }
@@ -425,7 +433,7 @@ async function handleSelectionSubmit(e) {
   e.preventDefault();
 
   if (!state.currentUser) {
-    showToast('Sesi telah berakhir, silakan login kembali.', 'error');
+    showToast('Sesi Anda berakhir, silakan login kembali.', 'error');
     switchView('view-login');
     return;
   }
@@ -434,27 +442,25 @@ async function handleSelectionSubmit(e) {
   const p2 = elements.selectPilihan2.value;
 
   if (!p1 || !p2) {
-    showToast('Harap pilih mata pelajaran untuk Pilihan 1 dan Pilihan 2!', 'error');
+    showToast('Harap tentukan Pilihan 1 dan Pilihan 2!', 'error');
     return;
   }
 
   setButtonLoading(elements.btnSubmitChoice, true);
 
   try {
-    const res = await callGasApi({
-      action: 'submit_choice',
+    const res = await callApi('submit-choice', {
       username: state.currentUser.username,
-      pilihan_1: p1,
-      pilihan_2: p2
+      choice_1: p1,
+      choice_2: p2
     });
 
     if (res.success) {
       state.currentUser = res.data;
       sessionStorage.setItem('TKA_SESSION_USER', JSON.stringify(res.data));
-      loadUserDataToUI(res.data);
+      loadStudentDataToUI(res.data);
       showToast('Pilihan mata pelajaran berhasil disimpan!', 'success');
 
-      // Tampilkan kartu bukti pendaftaran
       populateProofCard();
       switchView('view-proof');
     } else {
@@ -467,50 +473,184 @@ async function handleSelectionSubmit(e) {
   }
 }
 
-// ==========================================
-// PROOF / CERTIFICATE FORMATTING
-// ==========================================
 function populateProofCard() {
-  const user = state.currentUser;
-  if (!user) return;
+  const s = state.currentUser;
+  if (!s) return;
 
-  const docId = `TKA-${user.username}-${new Date().getFullYear()}`;
-  elements.proofDocId.textContent = docId;
-  elements.proofNis.textContent = user.username;
-  elements.proofName.textContent = user.nama_lengkap;
-  elements.proofKelas.textContent = user.kelas;
-  elements.proofTimestamp.textContent = user.updated_at || 'Baru saja disimpan';
-  elements.proofVal1.textContent = user.pilihan_1 || '-';
-  elements.proofVal2.textContent = user.pilihan_2 || '-';
-  elements.proofSignatureName.textContent = user.nama_lengkap;
+  elements.proofDocId.textContent = `TKA-2026-${s.username.toUpperCase()}`;
+  elements.proofNis.textContent = s.username;
+  elements.proofName.textContent = s.first_name;
+  elements.proofSekolah.textContent = s.sekolah || '-';
+  elements.proofKelas.textContent = s.nama_kelas || '-';
+  elements.proofWalas.textContent = s.inisial_user ? `Wali Kelas ${s.inisial_user}` : '-';
+  elements.proofTargetJurusan.textContent = s.target_jurusan || '-';
+  elements.proofTimestamp.textContent = s.updated_at || s.submitted_at || 'Baru saja';
+  elements.proofVal1.textContent = s.choice_1 || '-';
+  elements.proofVal2.textContent = s.choice_2 || '-';
+  elements.proofSignatureName.textContent = s.first_name;
+}
+
+// ==========================================
+// WALI KELAS DASHBOARD LOGIC
+// ==========================================
+async function fetchWalasData(showToastMsg = false) {
+  if (!state.authCredentials || !state.currentUser) return;
+
+  try {
+    if (elements.btnWalasRefresh) setButtonLoading(elements.btnWalasRefresh, true);
+
+    const res = await callApi('walas-data', {
+      inisial_user: state.currentUser.inisial_user,
+      password: state.authCredentials.password
+    });
+
+    if (res.success) {
+      state.walasData = res.data;
+      renderWalasSummary(res.data.summary);
+      populateWalasKelasFilter(res.data.classes);
+      renderWalasTable();
+      if (showToastMsg) showToast('Data siswa binaan berhasil diperbarui.', 'success');
+    } else {
+      showToast(res.message || 'Gagal memuat data walas.', 'error');
+    }
+  } catch (err) {
+    showToast('Gagal terhubung ke backend.', 'error');
+  } finally {
+    if (elements.btnWalasRefresh) setButtonLoading(elements.btnWalasRefresh, false);
+  }
+}
+
+function renderWalasSummary(summary) {
+  if (!summary) return;
+  elements.walasStatTotal.textContent = summary.total;
+  elements.walasStatCompleted.textContent = summary.completed;
+  elements.walasStatPending.textContent = summary.pending;
+  elements.walasStatPercent.textContent = `${summary.percent}%`;
+}
+
+function populateWalasKelasFilter(classes) {
+  if (!classes || !elements.walasFilterKelas) return;
+  const currentVal = elements.walasFilterKelas.value;
+  let options = '<option value="ALL">Semua Kelas Binaan</option>';
+  classes.forEach(k => {
+    options += `<option value="${k}">Kelas ${k}</option>`;
+  });
+  elements.walasFilterKelas.innerHTML = options;
+  if (classes.includes(currentVal)) {
+    elements.walasFilterKelas.value = currentVal;
+  }
+}
+
+function renderWalasTable() {
+  if (!state.walasData || !state.walasData.students || !elements.walasStudentTbody) return;
+
+  const searchQuery = (elements.walasSearchInput ? elements.walasSearchInput.value : '').toLowerCase().trim();
+  const statusFilter = elements.walasFilterStatus ? elements.walasFilterStatus.value : 'ALL';
+  const kelasFilter = elements.walasFilterKelas ? elements.walasFilterKelas.value : 'ALL';
+
+  const filtered = state.walasData.students.filter(s => {
+    const matchSearch = !searchQuery ||
+      String(s.first_name || '').toLowerCase().includes(searchQuery) ||
+      String(s.username || '').toLowerCase().includes(searchQuery) ||
+      String(s.sekolah || '').toLowerCase().includes(searchQuery) ||
+      String(s.target_jurusan || '').toLowerCase().includes(searchQuery);
+
+    const isDone = s.is_submitted && s.choice_1 && s.choice_2;
+    const matchStatus = statusFilter === 'ALL' || (statusFilter === 'SUDAH' ? isDone : !isDone);
+    const matchKelas = kelasFilter === 'ALL' || s.nama_kelas === kelasFilter;
+
+    return matchSearch && matchStatus && matchKelas;
+  });
+
+  if (elements.walasShowingCount) {
+    elements.walasShowingCount.textContent = `Menampilkan ${filtered.length} dari ${state.walasData.students.length} siswa binaan`;
+  }
+
+  if (filtered.length === 0) {
+    elements.walasStudentTbody.innerHTML = `
+      <tr>
+        <td colspan="9" style="text-align: center; padding: 2rem; color: #94a3b8;">
+          Tidak ada data siswa binaan yang cocok dengan kriteria filter.
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  const rows = filtered.map((s, idx) => {
+    const isDone = s.is_submitted && s.choice_1 && s.choice_2;
+    const statusBadge = isDone 
+      ? '<span class="badge badge-success">✅ SUDAH</span>' 
+      : '<span class="badge badge-warning">⏳ BELUM</span>';
+
+    return `
+      <tr>
+        <td style="font-weight: 600; color: #64748b;">${idx + 1}</td>
+        <td style="font-family: monospace; font-weight: 700;">${s.username}</td>
+        <td style="font-weight: 700;">${s.first_name}</td>
+        <td><span class="badge badge-purple">${s.nama_kelas || '-'}</span></td>
+        <td style="font-size: 0.8rem; color: #475569;">${s.sekolah || '-'}</td>
+        <td style="font-size: 0.8rem; font-weight: 600; color: #15803d;">${s.target_jurusan || '-'}</td>
+        <td>${s.choice_1 ? `<strong>${s.choice_1}</strong>` : '<span style="color: #cbd5e1;">-</span>'}</td>
+        <td>${s.choice_2 ? `<strong>${s.choice_2}</strong>` : '<span style="color: #cbd5e1;">-</span>'}</td>
+        <td>${statusBadge}</td>
+      </tr>
+    `;
+  }).join('');
+
+  elements.walasStudentTbody.innerHTML = rows;
+}
+
+function exportWalasCSV() {
+  if (!state.walasData || !state.walasData.students) return;
+
+  const inisial = state.currentUser.inisial_user;
+  const headers = ['No', 'NIS', 'Nama Siswa', 'Kelas', 'Asal Sekolah', 'Walas', 'Target Prodi PTN', 'Pilihan 1', 'Pilihan 2', 'Status', 'Waktu Simpan'];
+  const rows = state.walasData.students.map((s, idx) => [
+    idx + 1,
+    `"${s.username}"`,
+    `"${s.first_name}"`,
+    `"${s.nama_kelas}"`,
+    `"${s.sekolah || ''}"`,
+    `"${s.inisial_user}"`,
+    `"${s.target_jurusan || ''}"`,
+    `"${s.choice_1 || ''}"`,
+    `"${s.choice_2 || ''}"`,
+    `"${s.is_submitted ? 'SUDAH' : 'BELUM'}"`,
+    `"${s.updated_at || s.submitted_at || ''}"`
+  ]);
+
+  const csv = '\uFEFF' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
+  downloadBlob(csv, `Rekap_TKA_Walas_${inisial}_${new Date().toISOString().slice(0,10)}.csv`, 'text/csv');
+  showToast('File CSV siswa binaan berhasil diunduh.', 'success');
 }
 
 // ==========================================
 // ADMIN DASHBOARD LOGIC
 // ==========================================
-async function fetchAdminRecap(showSuccessToast = false) {
-  if (!state.adminAuth || !state.adminAuth.password) return;
+async function fetchAdminData(showToastMsg = false) {
+  if (!state.authCredentials) return;
 
   try {
     if (elements.btnAdminRefresh) setButtonLoading(elements.btnAdminRefresh, true);
 
-    const res = await callGasApi({
-      action: 'admin_get_recap',
-      password: state.adminAuth.password
+    const res = await callApi('admin-data', {
+      password: state.authCredentials.password
     });
 
     if (res.success) {
-      state.adminData = res;
-      renderAdminSummary(res.summary);
-      renderAdminSubjectStats(res.subjects_stats);
-      populateAdminKelasFilter(res.students);
+      state.adminData = res.data;
+      renderAdminSummary(res.data.summary);
+      renderAdminSubjectStats(res.data.subject_stats);
+      renderAdminWalasProgress(res.data.walas_progress);
+      populateAdminFilters(res.data.walas_progress, res.data.classes);
       renderAdminTable();
-      if (showSuccessToast) showToast('Data rekapitulasi berhasil diperbarui.', 'success');
+      if (showToastMsg) showToast('Master data rekapitulasi berhasil diperbarui.', 'success');
     } else {
-      showToast(res.message || 'Gagal memuat rekapitulasi.', 'error');
+      showToast(res.message || 'Gagal memuat master data admin.', 'error');
     }
   } catch (err) {
-    showToast('Gagal terhubung ke backend untuk rekap admin.', 'error');
+    showToast('Gagal terhubung ke backend.', 'error');
   } finally {
     if (elements.btnAdminRefresh) setButtonLoading(elements.btnAdminRefresh, false);
   }
@@ -518,25 +658,25 @@ async function fetchAdminRecap(showSuccessToast = false) {
 
 function renderAdminSummary(summary) {
   if (!summary) return;
-  elements.statTotalStudents.textContent = summary.total;
-  elements.statCompletedStudents.textContent = summary.sudah;
-  elements.statPendingStudents.textContent = summary.belum;
-  elements.statPercentProgress.textContent = `${summary.percent}%`;
+  elements.adminStatTotal.textContent = summary.total;
+  elements.adminStatCompleted.textContent = summary.completed;
+  elements.adminStatPending.textContent = summary.pending;
+  elements.adminStatPercent.textContent = `${summary.percent}%`;
 }
 
 function renderAdminSubjectStats(stats) {
   if (!stats || !elements.adminSubjectStatsContainer) return;
 
   const html = CONFIG.SUBJECTS.map(subj => {
-    const stat = stats[subj.name] || { total: 0, pilihan_1: 0, pilihan_2: 0 };
+    const stat = stats[subj.name] || { total: 0, choice_1: 0, choice_2: 0 };
     return `
       <div class="subject-stat-item">
         <div class="subject-stat-name">
           <span>${subj.icon}</span>
           <span>${subj.name}</span>
         </div>
-        <div class="subject-stat-count" title="Pilihan 1: ${stat.pilihan_1}, Pilihan 2: ${stat.pilihan_2}">
-          ${stat.total} Siswa
+        <div class="subject-stat-count" title="Pilihan 1: ${stat.choice_1} | Pilihan 2: ${stat.choice_2}">
+          ${stat.total} Kursi
         </div>
       </div>
     `;
@@ -545,19 +685,43 @@ function renderAdminSubjectStats(stats) {
   elements.adminSubjectStatsContainer.innerHTML = html;
 }
 
-function populateAdminKelasFilter(students) {
-  if (!students || !elements.adminFilterKelas) return;
-  const currentVal = elements.adminFilterKelas.value;
+function renderAdminWalasProgress(walasList) {
+  if (!walasList || !elements.adminWalasProgressContainer) return;
 
-  const uniqueKelas = [...new Set(students.map(s => s.kelas).filter(Boolean))].sort();
-  let options = '<option value="ALL">Semua Kelas</option>';
-  uniqueKelas.forEach(k => {
-    options += `<option value="${k}">${k}</option>`;
-  });
-  elements.adminFilterKelas.innerHTML = options;
+  const html = walasList.map(w => `
+    <div class="walas-card-item">
+      <div class="walas-header">
+        <strong style="color: #0f172a; font-size: 0.9rem;">Walas ${w.inisial}</strong>
+        <span style="font-size: 0.8rem; font-weight: 700; color: #4f46e5;">${w.percent}% (${w.completed}/${w.total})</span>
+      </div>
+      <div class="progress-bar-bg">
+        <div class="progress-bar-fill" style="width: ${w.percent}%;"></div>
+      </div>
+    </div>
+  `).join('');
 
-  if (uniqueKelas.includes(currentVal)) {
-    elements.adminFilterKelas.value = currentVal;
+  elements.adminWalasProgressContainer.innerHTML = html;
+}
+
+function populateAdminFilters(walasList, classes) {
+  if (walasList && elements.adminFilterWalas) {
+    const currentVal = elements.adminFilterWalas.value;
+    let options = '<option value="ALL">Semua Walas</option>';
+    walasList.forEach(w => {
+      options += `<option value="${w.inisial}">Walas ${w.inisial}</option>`;
+    });
+    elements.adminFilterWalas.innerHTML = options;
+    if (walasList.some(w => w.inisial === currentVal)) elements.adminFilterWalas.value = currentVal;
+  }
+
+  if (classes && elements.adminFilterKelas) {
+    const currentVal = elements.adminFilterKelas.value;
+    let options = '<option value="ALL">Semua Kelas</option>';
+    classes.forEach(k => {
+      options += `<option value="${k}">Kelas ${k}</option>`;
+    });
+    elements.adminFilterKelas.innerHTML = options;
+    if (classes.includes(currentVal)) elements.adminFilterKelas.value = currentVal;
   }
 }
 
@@ -566,28 +730,33 @@ function renderAdminTable() {
 
   const searchQuery = (elements.adminSearchInput ? elements.adminSearchInput.value : '').toLowerCase().trim();
   const statusFilter = elements.adminFilterStatus ? elements.adminFilterStatus.value : 'ALL';
+  const walasFilter = elements.adminFilterWalas ? elements.adminFilterWalas.value : 'ALL';
   const kelasFilter = elements.adminFilterKelas ? elements.adminFilterKelas.value : 'ALL';
 
   const filtered = state.adminData.students.filter(s => {
-    const matchSearch = !searchQuery || 
-      String(s.nama_lengkap || '').toLowerCase().includes(searchQuery) || 
-      String(s.username || '').toLowerCase().includes(searchQuery);
+    const matchSearch = !searchQuery ||
+      String(s.first_name || '').toLowerCase().includes(searchQuery) ||
+      String(s.username || '').toLowerCase().includes(searchQuery) ||
+      String(s.sekolah || '').toLowerCase().includes(searchQuery) ||
+      String(s.target_jurusan || '').toLowerCase().includes(searchQuery);
 
-    const matchStatus = statusFilter === 'ALL' || s.status_isi === statusFilter;
-    const matchKelas = kelasFilter === 'ALL' || s.kelas === kelasFilter;
+    const isDone = s.is_submitted && s.choice_1 && s.choice_2;
+    const matchStatus = statusFilter === 'ALL' || (statusFilter === 'SUDAH' ? isDone : !isDone);
+    const matchWalas = walasFilter === 'ALL' || s.inisial_user === walasFilter;
+    const matchKelas = kelasFilter === 'ALL' || s.nama_kelas === kelasFilter;
 
-    return matchSearch && matchStatus && matchKelas;
+    return matchSearch && matchStatus && matchWalas && matchKelas;
   });
 
   if (elements.adminShowingCount) {
-    elements.adminShowingCount.textContent = `Menampilkan ${filtered.length} dari ${state.adminData.students.length} siswa`;
+    elements.adminShowingCount.textContent = `Menampilkan ${filtered.length} dari ${state.adminData.students.length} total siswa`;
   }
 
   if (filtered.length === 0) {
     elements.adminStudentTbody.innerHTML = `
       <tr>
-        <td colspan="8" style="text-align: center; padding: 2rem; color: #94a3b8;">
-          Tidak ada data siswa yang cocok dengan kriteria pencarian / filter.
+        <td colspan="10" style="text-align: center; padding: 2rem; color: #94a3b8;">
+          Tidak ada data yang cocok dengan kriteria pencarian / filter.
         </td>
       </tr>
     `;
@@ -595,8 +764,8 @@ function renderAdminTable() {
   }
 
   const rows = filtered.map((s, idx) => {
-    const isCompleted = s.status_isi === 'SUDAH';
-    const statusBadge = isCompleted 
+    const isDone = s.is_submitted && s.choice_1 && s.choice_2;
+    const statusBadge = isDone 
       ? '<span class="badge badge-success">✅ SUDAH</span>' 
       : '<span class="badge badge-warning">⏳ BELUM</span>';
 
@@ -604,12 +773,14 @@ function renderAdminTable() {
       <tr>
         <td style="font-weight: 600; color: #64748b;">${idx + 1}</td>
         <td style="font-family: monospace; font-weight: 700;">${s.username}</td>
-        <td style="font-weight: 600;">${s.nama_lengkap}</td>
-        <td><span class="badge badge-info">${s.kelas || '-'}</span></td>
-        <td>${s.pilihan_1 ? `<strong>${s.pilihan_1}</strong>` : '<span style="color: #cbd5e1;">-</span>'}</td>
-        <td>${s.pilihan_2 ? `<strong>${s.pilihan_2}</strong>` : '<span style="color: #cbd5e1;">-</span>'}</td>
+        <td style="font-weight: 700;">${s.first_name}</td>
+        <td><span class="badge badge-purple">${s.nama_kelas || '-'}</span></td>
+        <td><span class="badge badge-warning">${s.inisial_user || '-'}</span></td>
+        <td style="font-size: 0.8rem; font-weight: 600; color: #15803d;">${s.target_jurusan || '-'}</td>
+        <td>${s.choice_1 ? `<strong>${s.choice_1}</strong>` : '<span style="color: #cbd5e1;">-</span>'}</td>
+        <td>${s.choice_2 ? `<strong>${s.choice_2}</strong>` : '<span style="color: #cbd5e1;">-</span>'}</td>
         <td>${statusBadge}</td>
-        <td style="font-size: 0.8rem; color: #64748b;">${s.updated_at || '-'}</td>
+        <td style="font-size: 0.75rem; color: #64748b;">${s.updated_at || s.submitted_at || '-'}</td>
       </tr>
     `;
   }).join('');
@@ -618,38 +789,43 @@ function renderAdminTable() {
 }
 
 function exportAdminCSV() {
-  if (!state.adminData || !state.adminData.students) {
-    showToast('Data belum tersedia untuk diekspor.', 'error');
-    return;
-  }
+  if (!state.adminData || !state.adminData.students) return;
 
-  const headers = ['No', 'Username/NIS', 'Nama Lengkap', 'Kelas', 'Pilihan 1', 'Pilihan 2', 'Status', 'Waktu Simpan'];
+  const headers = ['No', 'NIS', 'Nama Siswa', 'Asal Sekolah', 'Kelas', 'Cabang', 'Walas', 'Target Prodi PTN', 'Pilihan 1', 'Pilihan 2', 'Status', 'Waktu Submit'];
   const rows = state.adminData.students.map((s, idx) => [
     idx + 1,
     `"${s.username}"`,
-    `"${s.nama_lengkap}"`,
-    `"${s.kelas}"`,
-    `"${s.pilihan_1 || ''}"`,
-    `"${s.pilihan_2 || ''}"`,
-    `"${s.status_isi}"`,
-    `"${s.updated_at || ''}"`
+    `"${s.first_name}"`,
+    `"${s.sekolah || ''}"`,
+    `"${s.nama_kelas}"`,
+    `"${s.nama_cabang || 'KEBAYORAN'}"`,
+    `"${s.inisial_user}"`,
+    `"${s.target_jurusan || ''}"`,
+    `"${s.choice_1 || ''}"`,
+    `"${s.choice_2 || ''}"`,
+    `"${s.is_submitted ? 'SUDAH' : 'BELUM'}"`,
+    `"${s.updated_at || s.submitted_at || ''}"`
   ]);
 
-  const csvContent = '\uFEFF' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
-  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.setAttribute('href', url);
-  link.setAttribute('download', `Rekap_Pemilihan_TKA_${new Date().toISOString().slice(0,10)}.csv`);
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  showToast('File CSV Rekap berhasil diunduh.', 'success');
+  const csv = '\uFEFF' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
+  downloadBlob(csv, `Master_Rekap_TKA_Kebayoran_${new Date().toISOString().slice(0,10)}.csv`, 'text/csv');
+  showToast('Seluruh Master Data berhasil diunduh.', 'success');
 }
 
 // ==========================================
-// UI UTILITIES
+// UTILITIES
 // ==========================================
+function downloadBlob(content, filename, contentType) {
+  const blob = new Blob([content], { type: `${contentType};charset=utf-8;` });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
 function setButtonLoading(btn, isLoading) {
   const textEl = btn.querySelector('.btn-text');
   const spinnerEl = btn.querySelector('.spinner');

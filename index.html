@@ -1,17 +1,14 @@
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pemilihan Mata Pelajaran TKA - Tes Kemampuan Akademik</title>
-  <meta name="description"
-    content="Portal pemilihan mata pelajaran pilihan Tes Kemampuan Akademik (TKA) siswa SMA/SMK/MA.">
+  <title>Pemilihan Mata Pelajaran Pilihan TKA - Prosus INTEN Kebayoran</title>
+  <meta name="description" content="Portal pemilihan mata pelajaran pilihan Tes Kemampuan Akademik (TKA) Prosus INTEN Cabang Kebayoran Jakarta T.A. 2026/2027.">
   <link rel="stylesheet" href="styles.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 </head>
-
 <body>
 
   <!-- Ambient decorative gradients -->
@@ -28,13 +25,13 @@
         <div class="brand-badge">
           <div class="brand-icon">🎓</div>
           <div>
-            <div class="brand-title" id="nav-app-title">Pilihan Mapel Pilihan TKA</div>
-            <div class="brand-subtitle" id="nav-inst-name">Tes Kemampuan Akademik</div>
+            <div class="brand-title" id="nav-app-title">Pemilihan Mapel Pilihan TKA</div>
+            <div class="brand-subtitle" id="nav-inst-name">Prosus INTEN Cabang Kebayoran - Jakarta</div>
           </div>
         </div>
 
         <div id="nav-user-actions" style="display: none; align-items: center; gap: 0.75rem;">
-          <span id="nav-user-display" style="font-size: 0.85rem; font-weight: 600; color: #475569;"></span>
+          <span id="nav-user-display" style="font-size: 0.85rem; font-weight: 600; color: #334155;"></span>
           <button id="btn-logout" class="btn btn-secondary" style="padding: 0.4rem 0.85rem; font-size: 0.8rem;">
             🚪 Keluar
           </button>
@@ -42,84 +39,83 @@
       </div>
     </header>
 
-    <!-- Alert for Missing API Script URL -->
-    <div id="setup-warning" class="setup-alert">
-      <strong>⚠️ Perhatian:</strong> URL Google Apps Script belum disetel pada <code>config.js</code>.
-      <a href="#" id="link-open-config-modal" style="color: #4f46e5; text-decoration: underline; font-weight: 600;">Klik
-        di sini untuk mengatur URL API Web App</a> agar aplikasi dapat terhubung ke Google Sheets.
-    </div>
-
     <!-- ========================================== -->
-    <!-- VIEW 1: LOGIN SECTION                      -->
+    <!-- VIEW 1: UNIFIED LOGIN                      -->
     <!-- ========================================== -->
     <main id="view-login" class="view-section active">
       <div class="auth-wrapper">
         <div class="auth-card">
           <div style="text-align: center; margin-bottom: 2rem;">
             <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">📚</div>
-            <h1 style="font-size: 1.5rem; color: #0f172a; margin-bottom: 0.35rem;">PENGISIAN MAPEL PILIHAN TKA</h1>
-            <p style="font-size: 0.875rem; color: #64748b;">Silakan masuk menggunakan username dan password yang sudah
-              dikirimkan</p>
+            <h1 style="font-size: 1.45rem; color: #0f172a; margin-bottom: 0.35rem;">PORTAL PEMILIHAN MAPEL TKA</h1>
+            <p style="font-size: 0.85rem; color: #64748b;">Prosus INTEN Kebayoran (T.A. 2026/2027)</p>
           </div>
 
           <form id="form-login">
             <div class="form-group">
-              <label for="login-username" class="form-label">Username</label>
+              <label for="login-username" class="form-label">Username / Akun</label>
               <div class="input-wrapper">
-                <input type="text" id="login-username" class="form-input" placeholder="Masukkan NIS Anda" required
-                  autocomplete="username">
+                <input type="text" id="login-username" class="form-input" placeholder="NIS Siswa / inisial.jakarta" required autocomplete="username">
               </div>
             </div>
 
             <div class="form-group">
               <label for="login-password" class="form-label">Password</label>
               <div class="input-wrapper">
-                <input type="password" id="login-password" class="form-input" placeholder="Masukkan Password Anda"
-                  required autocomplete="current-password">
-                <button type="button" id="btn-toggle-pass" class="password-toggle-btn"
-                  title="Tampilkan/Sembunyikan Password">👁️</button>
+                <input type="password" id="login-password" class="form-input" placeholder="Masukkan Password Anda" required autocomplete="current-password">
+                <button type="button" id="btn-toggle-pass" class="password-toggle-btn" title="Tampilkan/Sembunyikan Password">👁️</button>
               </div>
             </div>
 
-            <div id="login-error"
-              style="display: none; padding: 0.75rem; background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; border-radius: 0.5rem; font-size: 0.85rem; margin-bottom: 1.25rem;">
-            </div>
+            <div id="login-error" style="display: none; padding: 0.75rem; background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; border-radius: 0.5rem; font-size: 0.85rem; margin-bottom: 1.25rem;"></div>
 
             <button type="submit" id="btn-login-submit" class="btn btn-primary btn-block">
-              <span class="btn-text">Masuk</span>
+              <span class="btn-text">Masuk ke Portal</span>
               <span class="spinner" style="display: none;"></span>
             </button>
           </form>
 
           <div style="margin-top: 1.5rem; text-align: center; font-size: 0.8rem; color: #94a3b8;">
-            Lupa password atau kendala akun? Hubungi kak LA.
+            Siswa: <code>jkt...</code> | Walas: <code>[inisial].jakarta</code> | Admin: <code>admin.jakarta</code>
           </div>
         </div>
       </div>
     </main>
 
     <!-- ========================================== -->
-    <!-- VIEW 2: DASHBOARD & SELECTION FORM         -->
+    <!-- VIEW 2: STUDENT DASHBOARD & SELECTION      -->
     <!-- ========================================== -->
-    <main id="view-dashboard" class="view-section">
+    <main id="view-student" class="view-section">
       <div class="main-content">
 
         <!-- Student Profile Card -->
-        <div class="student-card">
-          <div class="student-info">
-            <div class="student-avatar" id="student-avatar-letter">S</div>
-            <div>
-              <div class="student-name" id="student-display-name">Nama Siswa</div>
-              <div class="student-meta">
-                <span>NIS: <strong id="student-display-nis">-</strong></span>
-                <span>•</span>
-                <span>Kelas: <strong id="student-display-kelas">-</strong></span>
+        <div class="student-profile-card">
+          <div class="student-card-grid">
+            <div class="student-info">
+              <div class="student-avatar" id="student-avatar-letter">S</div>
+              <div>
+                <div class="student-name" id="student-display-name">Nama Siswa</div>
+                <div class="student-meta-tags">
+                  <span class="badge badge-info">NIS: <strong id="student-display-nis">-</strong></span>
+                  <span class="badge badge-purple">Kelas: <strong id="student-display-kelas">-</strong></span>
+                  <span class="badge badge-info" id="student-display-sekolah">-</span>
+                  <span class="badge badge-warning">Walas: <strong id="student-display-walas">-</strong></span>
+                </div>
               </div>
             </div>
+            <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.5rem;">
+              <div id="student-status-badge" class="badge badge-warning">⏳ BELUM MEMILIH</div>
+              <div id="student-last-update" style="font-size: 0.75rem; color: #64748b;"></div>
+            </div>
           </div>
-          <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.5rem;">
-            <div id="student-status-badge" class="badge badge-warning">⏳ BELUM MEMILIH</div>
-            <div id="student-last-update" style="font-size: 0.75rem; color: #64748b;"></div>
+
+          <!-- Highlight Target Jurusan PTN Impian -->
+          <div class="target-jurusan-box">
+            <div class="target-jurusan-icon">🎯</div>
+            <div>
+              <div class="target-jurusan-title">Target Program Studi & PTN Impian Anda:</div>
+              <div class="target-jurusan-value" id="student-target-jurusan">-</div>
+            </div>
           </div>
         </div>
 
@@ -129,10 +125,9 @@
           <div>
             <strong>Petunjuk Pemilihan Mata Pelajaran TKA:</strong>
             <ul style="margin-left: 1.2rem; margin-top: 0.35rem; list-style-type: disc;">
-              <li>Pilih tepat <strong>2 Mata Pelajaran</strong> (Pilihan 1 dan Pilihan 2).</li>
-              <li><strong>Boleh memilih mata pelajaran yang sama</strong> pada Pilihan 1 & 2 untuk kategori pendalaman
-                materi tunggal.</li>
-              <li>Pilihan dapat diubah kembali selama masa pemilihan masih aktif.</li>
+              <li>Pilih tepat <strong>2 Mata Pelajaran</strong> yang mendukung persiapan prodi PTN impian Anda.</li>
+              <li><strong>Boleh memilih mata pelajaran yang sama</strong> pada Pilihan 1 & 2 jika Anda ingin pendalaman materi tunggal.</li>
+              <li>Pilihan dapat diubah kembali selama masa periode pemilihan masih aktif.</li>
             </ul>
           </div>
         </div>
@@ -140,7 +135,7 @@
         <!-- Selection Form -->
         <form id="form-selection">
           <div class="selection-grid">
-
+            
             <!-- Choice 1 Box -->
             <div class="choice-box" id="box-choice-1">
               <div class="choice-header">
@@ -196,11 +191,10 @@
           </div>
 
           <!-- Action Buttons -->
-          <div
-            style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1rem; margin-top: 1.5rem;">
+          <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1rem; margin-top: 1.5rem;">
             <div>
               <button type="button" id="btn-view-proof" class="btn btn-outline" style="display: none;">
-                📄 Lihat Bukti Pendaftaran
+                📄 Lihat Bukti Registrasi
               </button>
             </div>
 
@@ -221,53 +215,64 @@
     <!-- ========================================== -->
     <main id="view-proof" class="view-section">
       <div class="main-content proof-container">
-
+        
         <div class="proof-card" id="proof-card-element">
           <!-- Kop Surat -->
           <div class="proof-header">
             <div>
-              <div class="proof-school-title" id="proof-school-name">SMA / SMK / MA</div>
-              <div class="proof-doc-name">BUKTI PEMILIHAN MATA PELAJARAN TKA</div>
-              <div style="font-size: 0.8rem; color: #64748b;" id="proof-academic-year">Tahun Ajaran 2024/2025</div>
+              <div class="proof-school-title">PROSUS INTEN CABANG KEBAYORAN</div>
+              <div class="proof-doc-name">KARTU BUKTI PEMILIHAN MATA PELAJARAN TKA</div>
+              <div style="font-size: 0.8rem; color: #64748b;">Tahun Ajaran 2026/2027 • Unit Jakarta</div>
             </div>
             <div style="text-align: right;">
-              <div style="font-size: 0.75rem; color: #64748b;">No. Dokumen:</div>
-              <div style="font-family: monospace; font-weight: 700; font-size: 0.95rem; color: #0f172a;"
-                id="proof-doc-id">TKA-2024-XXXX</div>
+              <div style="font-size: 0.75rem; color: #64748b;">No. Registrasi:</div>
+              <div style="font-family: monospace; font-weight: 700; font-size: 0.95rem; color: #0f172a;" id="proof-doc-id">TKA-2026-XXXX</div>
             </div>
           </div>
 
           <!-- Biodata Table -->
           <table class="proof-table">
             <tr>
-              <th>Nomor Induk Siswa (NIS)</th>
-              <td id="proof-nis">-</td>
+              <th>Username / NIS</th>
+              <td id="proof-nis" style="font-family: monospace; font-weight: 700;">-</td>
             </tr>
             <tr>
               <th>Nama Lengkap Siswa</th>
-              <td id="proof-name" style="font-weight: 700;">-</td>
+              <td id="proof-name" style="font-weight: 700; font-size: 1rem;">-</td>
+            </tr>
+            <tr>
+              <th>Asal Sekolah</th>
+              <td id="proof-sekolah">-</td>
             </tr>
             <tr>
               <th>Kelas / Rombel</th>
               <td id="proof-kelas">-</td>
             </tr>
             <tr>
+              <th>Wali Kelas (Walas)</th>
+              <td id="proof-walas">-</td>
+            </tr>
+            <tr>
+              <th>Target Prodi & PTN Impian</th>
+              <td id="proof-target-jurusan" style="font-weight: 700; color: #15803d;">-</td>
+            </tr>
+            <tr>
               <th>Waktu Simpan Terakhir</th>
               <td id="proof-timestamp">-</td>
             </tr>
             <tr>
-              <th>Status Pemilihan</th>
-              <td><span class="badge badge-success" id="proof-status">TERVERIFIKASI SUDAH MEMILIH</span></td>
+              <th>Status Verifikasi</th>
+              <td><span class="badge badge-success">TERVERIFIKASI SUDAH MEMILIH</span></td>
             </tr>
           </table>
 
           <!-- Choices Cards -->
           <div style="margin-top: 1.5rem; margin-bottom: 1.5rem;">
             <div style="font-weight: 700; font-size: 0.95rem; margin-bottom: 0.75rem; color: #0f172a;">
-              Daftar Mata Pelajaran yang Dipilih:
+              Mata Pelajaran TKA yang Dipilih:
             </div>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-
+              
               <div class="proof-choice-card">
                 <div class="proof-choice-title">Pilihan 1 (Utama / Peminatan)</div>
                 <div class="proof-choice-value" id="proof-val-1">-</div>
@@ -283,18 +288,17 @@
 
           <!-- Note & Signatures -->
           <div class="proof-footer">
-            <div style="font-size: 0.75rem; color: #64748b; max-width: 320px;">
-              * Bukti ini sah dicetak sebagai tanda keikutsertaan penentuan mapel TKA. Simpan dokumen ini dengan baik.
+            <div style="font-size: 0.75rem; color: #64748b; max-width: 340px;">
+              * Bukti registrasi ini sah sebagai tanda keikutsertaan penentuan mapel TKA Prosus INTEN Kebayoran.
             </div>
             <div style="text-align: center; width: 180px;">
               <div style="font-size: 0.8rem; margin-bottom: 3.5rem;">Siswa yang bersangkutan,</div>
-              <div style="font-weight: 700; text-decoration: underline; font-size: 0.85rem;" id="proof-signature-name">
-                Nama Siswa</div>
+              <div style="font-weight: 700; text-decoration: underline; font-size: 0.85rem;" id="proof-signature-name">Nama Siswa</div>
             </div>
           </div>
         </div>
 
-        <!-- Action Buttons (Hidden when printing) -->
+        <!-- Action Buttons -->
         <div class="proof-actions">
           <button id="btn-back-to-edit" class="btn btn-secondary">
             ✏️ Ubah Pilihan
@@ -305,162 +309,269 @@
         </div>
 
       </div>
-      <!-- ========================================== -->
-      <!-- VIEW 4: ADMIN DASHBOARD                    -->
-      <!-- ========================================== -->
-      <main id="view-admin" class="view-section">
-        <div class="main-content" style="max-width: 1200px;">
+    </main>
 
-          <!-- Header Dashboard Admin -->
-          <div class="admin-header">
-            <div class="admin-title-badge">
-              <div class="admin-badge-icon">📊</div>
-              <div>
-                <h2 style="font-size: 1.5rem; color: #0f172a;">Dashboard Administrator</h2>
-                <p style="font-size: 0.85rem; color: #64748b;">Monitoring & Rekapitulasi Pemilihan Mata Pelajaran TKA
-                </p>
-              </div>
-            </div>
-            <div style="display: flex; flex-wrap: wrap; gap: 0.75rem;">
-              <button id="btn-admin-refresh" class="btn btn-secondary">
-                🔄 Refresh Data
-              </button>
-              <button id="btn-admin-export" class="btn btn-secondary">
-                📥 Export CSV / Excel
-              </button>
-              <button id="btn-admin-print" class="btn btn-primary">
-                🖨️ Cetak Rekap
-              </button>
+    <!-- ========================================== -->
+    <!-- VIEW 4: WALI KELAS DASHBOARD               -->
+    <!-- ========================================== -->
+    <main id="view-walas" class="view-section">
+      <div class="main-content">
+
+        <!-- Header Walas -->
+        <div class="dashboard-header">
+          <div class="dashboard-title-badge">
+            <div class="dashboard-badge-icon">👨‍🏫</div>
+            <div>
+              <h2 style="font-size: 1.45rem; color: #0f172a;">Dasbor Wali Kelas (<span id="walas-header-inisial">-</span>)</h2>
+              <p style="font-size: 0.85rem; color: #64748b;">Pemantauan & Rekapitulasi Siswa Binaan Cabang Kebayoran</p>
             </div>
           </div>
-
-          <!-- 4 Stat Summary Cards -->
-          <div class="stat-grid">
-            <div class="stat-card">
-              <div>
-                <div class="stat-label">Total Siswa Terdaftar</div>
-                <div class="stat-val" id="stat-total-students">0</div>
-              </div>
-              <div class="stat-icon stat-icon-blue">👥</div>
-            </div>
-
-            <div class="stat-card">
-              <div>
-                <div class="stat-label">Sudah Memilih</div>
-                <div class="stat-val" style="color: #16a34a;" id="stat-completed-students">0</div>
-              </div>
-              <div class="stat-icon stat-icon-green">✅</div>
-            </div>
-
-            <div class="stat-card">
-              <div>
-                <div class="stat-label">Belum Memilih</div>
-                <div class="stat-val" style="color: #d97706;" id="stat-pending-students">0</div>
-              </div>
-              <div class="stat-icon stat-icon-amber">⏳</div>
-            </div>
-
-            <div class="stat-card">
-              <div>
-                <div class="stat-label">Persentase Pengisian</div>
-                <div class="stat-val" style="color: #4f46e5;" id="stat-percent-progress">0%</div>
-              </div>
-              <div class="stat-icon stat-icon-indigo">📈</div>
-            </div>
+          <div style="display: flex; flex-wrap: wrap; gap: 0.75rem;">
+            <button id="btn-walas-refresh" class="btn btn-secondary">
+              🔄 Refresh Data
+            </button>
+            <button id="btn-walas-export" class="btn btn-secondary">
+              📥 Export CSV Siswa Binaan
+            </button>
+            <button id="btn-walas-print" class="btn btn-primary">
+              🖨️ Cetak Rekap
+            </button>
           </div>
-
-          <!-- Subject Recap Breakdown -->
-          <div class="subject-stats-wrapper">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-              <h3 style="font-size: 1.1rem; color: #0f172a;">📊 Rekapitulasi Peminat per Mata Pelajaran</h3>
-              <span style="font-size: 0.8rem; color: #64748b;">(Total akumulasi Pilihan 1 & 2)</span>
-            </div>
-            <div class="subject-stats-grid" id="admin-subject-stats-container">
-              <!-- Populated via JS -->
-            </div>
-          </div>
-
-          <!-- Filter & Search Toolbar -->
-          <div class="toolbar-card">
-            <div class="filter-group">
-              <div class="search-input-wrapper">
-                <input type="text" id="admin-search-input" class="form-input"
-                  placeholder="🔍 Cari nama siswa atau username/NIS...">
-              </div>
-              <div>
-                <select id="admin-filter-status" class="form-select" style="min-width: 170px;">
-                  <option value="ALL">Semua Status</option>
-                  <option value="SUDAH">✅ Sudah Memilih</option>
-                  <option value="BELUM">⏳ Belum Memilih</option>
-                </select>
-              </div>
-              <div>
-                <select id="admin-filter-kelas" class="form-select" style="min-width: 150px;">
-                  <option value="ALL">Semua Kelas</option>
-                </select>
-              </div>
-            </div>
-            <div style="font-size: 0.85rem; color: #64748b; font-weight: 600;" id="admin-showing-count">
-              Menampilkan 0 siswa
-            </div>
-          </div>
-
-          <!-- Full Student Table -->
-          <div class="table-container">
-            <table class="admin-table" id="admin-student-table">
-              <thead>
-                <tr>
-                  <th style="width: 50px;">No</th>
-                  <th>Username / NIS</th>
-                  <th>Nama Siswa</th>
-                  <th>Kelas</th>
-                  <th>Pilihan 1</th>
-                  <th>Pilihan 2</th>
-                  <th>Status</th>
-                  <th>Waktu Simpan</th>
-                </tr>
-              </thead>
-              <tbody id="admin-student-tbody">
-                <!-- Populated via JS -->
-              </tbody>
-            </table>
-          </div>
-
         </div>
-      </main>
 
-      <!-- Footer -->
-      <footer style="margin-top: auto; padding: 1.5rem 0; text-align: center; font-size: 0.8rem; color: #94a3b8;">
-        &copy; 2026 - Portal Pemilihan Mata Pelajaran TKA. Sistem Informasi Berbasis Google Sheets & Apps Script.
-      </footer>
+        <!-- Stat Cards -->
+        <div class="stat-grid">
+          <div class="stat-card">
+            <div>
+              <div class="stat-label">Total Siswa Binaan</div>
+              <div class="stat-val" id="walas-stat-total">0</div>
+            </div>
+            <div class="stat-icon stat-icon-blue">👥</div>
+          </div>
+
+          <div class="stat-card">
+            <div>
+              <div class="stat-label">Sudah Memilih</div>
+              <div class="stat-val" style="color: #16a34a;" id="walas-stat-completed">0</div>
+            </div>
+            <div class="stat-icon stat-icon-green">✅</div>
+          </div>
+
+          <div class="stat-card">
+            <div>
+              <div class="stat-label">Belum Memilih</div>
+              <div class="stat-val" style="color: #d97706;" id="walas-stat-pending">0</div>
+            </div>
+            <div class="stat-icon stat-icon-amber">⏳</div>
+          </div>
+
+          <div class="stat-card">
+            <div>
+              <div class="stat-label">Progres Pengisian</div>
+              <div class="stat-val" style="color: #4f46e5;" id="walas-stat-percent">0%</div>
+            </div>
+            <div class="stat-icon stat-icon-indigo">📈</div>
+          </div>
+        </div>
+
+        <!-- Filter & Search Toolbar -->
+        <div class="toolbar-card">
+          <div class="filter-group">
+            <div class="search-input-wrapper">
+              <input type="text" id="walas-search-input" class="form-input" placeholder="🔍 Cari nama siswa, NIS, atau sekolah...">
+            </div>
+            <div>
+              <select id="walas-filter-status" class="form-select" style="min-width: 170px;">
+                <option value="ALL">Semua Status</option>
+                <option value="SUDAH">✅ Sudah Memilih</option>
+                <option value="BELUM">⏳ Belum Memilih</option>
+              </select>
+            </div>
+            <div>
+              <select id="walas-filter-kelas" class="form-select" style="min-width: 160px;">
+                <option value="ALL">Semua Kelas Binaan</option>
+              </select>
+            </div>
+          </div>
+          <div style="font-size: 0.85rem; color: #64748b; font-weight: 600;" id="walas-showing-count">
+            Menampilkan 0 siswa
+          </div>
+        </div>
+
+        <!-- Table Siswa Binaan -->
+        <div class="table-container">
+          <table class="custom-table" id="walas-student-table">
+            <thead>
+              <tr>
+                <th style="width: 40px;">No</th>
+                <th>NIS</th>
+                <th>Nama Siswa</th>
+                <th>Kelas</th>
+                <th>Asal Sekolah</th>
+                <th>Target Prodi PTN</th>
+                <th>Pilihan 1</th>
+                <th>Pilihan 2</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="walas-student-tbody">
+              <!-- Populated via JS -->
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+    </main>
+
+    <!-- ========================================== -->
+    <!-- VIEW 5: ADMIN UTAMA DASHBOARD              -->
+    <!-- ========================================== -->
+    <main id="view-admin" class="view-section">
+      <div class="main-content">
+
+        <!-- Header Admin -->
+        <div class="dashboard-header">
+          <div class="dashboard-title-badge">
+            <div class="dashboard-badge-icon">👑</div>
+            <div>
+              <h2 style="font-size: 1.45rem; color: #0f172a;">Dasbor Admin Utama</h2>
+              <p style="font-size: 0.85rem; color: #64748b;">Matriks Beban Kursi 11 Mapel & Capaian 14 Wali Kelas (212 Siswa)</p>
+            </div>
+          </div>
+          <div style="display: flex; flex-wrap: wrap; gap: 0.75rem;">
+            <button id="btn-admin-refresh" class="btn btn-secondary">
+              🔄 Refresh Data
+            </button>
+            <button id="btn-admin-export" class="btn btn-secondary">
+              📥 Export Seluruh Master Data
+            </button>
+            <button id="btn-admin-print" class="btn btn-primary">
+              🖨️ Cetak Rekap Global
+            </button>
+          </div>
+        </div>
+
+        <!-- 4 Global Stat Cards -->
+        <div class="stat-grid">
+          <div class="stat-card">
+            <div>
+              <div class="stat-label">Total 212 Siswa</div>
+              <div class="stat-val" id="admin-stat-total">0</div>
+            </div>
+            <div class="stat-icon stat-icon-blue">👥</div>
+          </div>
+
+          <div class="stat-card">
+            <div>
+              <div class="stat-label">Sudah Memilih</div>
+              <div class="stat-val" style="color: #16a34a;" id="admin-stat-completed">0</div>
+            </div>
+            <div class="stat-icon stat-icon-green">✅</div>
+          </div>
+
+          <div class="stat-card">
+            <div>
+              <div class="stat-label">Belum Memilih</div>
+              <div class="stat-val" style="color: #d97706;" id="admin-stat-pending">0</div>
+            </div>
+            <div class="stat-icon stat-icon-amber">⏳</div>
+          </div>
+
+          <div class="stat-card">
+            <div>
+              <div class="stat-label">Capaian Cabang</div>
+              <div class="stat-val" style="color: #4f46e5;" id="admin-stat-percent">0%</div>
+            </div>
+            <div class="stat-icon stat-icon-indigo">📈</div>
+          </div>
+        </div>
+
+        <!-- 11-Subject Seat Matrix -->
+        <div class="subject-stats-wrapper">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="font-size: 1.1rem; color: #0f172a;">📊 Matriks Beban Kursi 11 Mata Pelajaran TKA</h3>
+            <span style="font-size: 0.8rem; color: #64748b;">(Akumulasi Kursi Pilihan 1 & 2)</span>
+          </div>
+          <div class="subject-stats-grid" id="admin-subject-stats-container">
+            <!-- Populated via JS -->
+          </div>
+        </div>
+
+        <!-- 14 Walas Progress Tracker -->
+        <div class="subject-stats-wrapper">
+          <h3 style="font-size: 1.1rem; color: #0f172a; margin-bottom: 0.5rem;">👨‍🏫 Pemantauan Capaian 14 Wali Kelas</h3>
+          <div class="walas-grid" id="admin-walas-progress-container">
+            <!-- Populated via JS -->
+          </div>
+        </div>
+
+        <!-- Filter & Search Toolbar -->
+        <div class="toolbar-card">
+          <div class="filter-group">
+            <div class="search-input-wrapper">
+              <input type="text" id="admin-search-input" class="form-input" placeholder="🔍 Cari nama siswa, NIS, sekolah, atau target prodi...">
+            </div>
+            <div>
+              <select id="admin-filter-status" class="form-select" style="min-width: 170px;">
+                <option value="ALL">Semua Status</option>
+                <option value="SUDAH">✅ Sudah Memilih</option>
+                <option value="BELUM">⏳ Belum Memilih</option>
+              </select>
+            </div>
+            <div>
+              <select id="admin-filter-walas" class="form-select" style="min-width: 150px;">
+                <option value="ALL">Semua Walas</option>
+              </select>
+            </div>
+            <div>
+              <select id="admin-filter-kelas" class="form-select" style="min-width: 150px;">
+                <option value="ALL">Semua Kelas</option>
+              </select>
+            </div>
+          </div>
+          <div style="font-size: 0.85rem; color: #64748b; font-weight: 600;" id="admin-showing-count">
+            Menampilkan 0 siswa
+          </div>
+        </div>
+
+        <!-- Master Student Table -->
+        <div class="table-container">
+          <table class="custom-table" id="admin-student-table">
+            <thead>
+              <tr>
+                <th style="width: 40px;">No</th>
+                <th>NIS</th>
+                <th>Nama Siswa</th>
+                <th>Kelas</th>
+                <th>Walas</th>
+                <th>Target Prodi PTN</th>
+                <th>Pilihan 1</th>
+                <th>Pilihan 2</th>
+                <th>Status</th>
+                <th>Waktu Simpan</th>
+              </tr>
+            </thead>
+            <tbody id="admin-student-tbody">
+              <!-- Populated via JS -->
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer style="margin-top: auto; padding: 1.5rem 0; text-align: center; font-size: 0.8rem; color: #94a3b8;">
+      &copy; 2026 - Prosus INTEN Cabang Kebayoran Jakarta. Sistem Pemilihan Mapel TKA Berbasis Cloudflare D1.
+    </footer>
 
   </div>
 
   <!-- Toast Notification Container -->
   <div id="toast-container" class="toast-container"></div>
 
-  <!-- Settings Modal (For API URL Configuration if needed) -->
-  <div id="config-modal" class="modal-overlay">
-    <div class="modal-content">
-      <h3 style="font-size: 1.2rem; margin-bottom: 0.75rem; color: #0f172a;">⚙️ Pengaturan API Web App</h3>
-      <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 1rem;">
-        Masukkan URL Google Apps Script Web App yang Anda dapatkan saat proses Deploy:
-      </p>
-      <div class="form-group">
-        <label for="input-custom-script-url" class="form-label">Google Apps Script Web App URL</label>
-        <input type="url" id="input-custom-script-url" class="form-input"
-          placeholder="https://script.google.com/macros/s/.../exec">
-      </div>
-      <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
-        <button type="button" id="btn-cancel-config" class="btn btn-secondary">Batal</button>
-        <button type="button" id="btn-save-config" class="btn btn-primary">Simpan URL</button>
-      </div>
-    </div>
-  </div>
-
   <!-- Scripts -->
   <script src="config.js"></script>
   <script src="app.js"></script>
 </body>
-
 </html>

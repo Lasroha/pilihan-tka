@@ -1,0 +1,9 @@
+name = "pilihan-tka"
+compatibility_date = "2024-09-28"
+pages_build_output_dir = "."
+
+# Binding Cloudflare D1 Database
+[[d1_databases]]
+binding = "DB"
+database_name = "db-pilihan-tka"
+database_id = "db-pilihan-tka"
