@@ -7,4 +7,4 @@ assets = { directory = "." }
 [[d1_databases]]
 binding = "DB"
 database_name = "db-pilihan-tka"
-database_id = "db-pilihan-tka"
+database_id = "7f9ac968-9505-44c8-b4b9-59649f4ad7d5"
