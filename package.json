@@ -1,0 +1,12 @@
+{
+  "name": "pilihan-tka",
+  "version": "1.0.0",
+  "description": "Portal Pemilihan Mapel TKA Prosus INTEN Kebayoran",
+  "main": "worker.js",
+  "scripts": {
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^3.80.0"
+  }
+}
